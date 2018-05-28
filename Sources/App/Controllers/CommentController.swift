@@ -1,7 +1,7 @@
 import Vapor
 import Fluent
 
-struct CommentsController: RouteCollection {
+struct CommentController: RouteCollection {
     func boot(router: Router) throws {
         
         let commentsRoutes = router.grouped("api", "comments") 
