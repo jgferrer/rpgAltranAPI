@@ -26,7 +26,7 @@ public func routes(_ router: Router) throws {
     let jsonGnomes = json()
     try router.register(collection: jsonGnomes)
 
-    
+    /*
     let tokenAuthenticationMiddleware = User.tokenAuthMiddleware()
     let authedRoutes = router.grouped(tokenAuthenticationMiddleware)
     authedRoutes.get("this/protected/route") { request -> Future<User.PublicUser> in
@@ -36,5 +36,5 @@ public func routes(_ router: Router) throws {
             return User.PublicUser(username: user.username, token: tokenType)
         }
     }
-    
+    */
 }
