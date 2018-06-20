@@ -18,7 +18,10 @@ private extension UserController {
 
             return try request.content.decode(User.self).flatMap(to: User.PublicUser.self) { user in
 
-                return try User.query(on: request).filter(\.username == user.username).first().flatMap { existingUser in
+                user.username = user.username.fromBase64()!
+                user.password = user.password.fromBase64()!
+                
+                return User.query(on: request).filter(\.username == user.username).first().flatMap { existingUser in
                     guard existingUser == nil else {
                         throw Abort(.badRequest, reason: "a user with this username already exists!" , identifier: nil)
                     }
@@ -38,6 +41,10 @@ private extension UserController {
 
     func loginUser(_ request: Request) throws -> Future<User.PublicUser> {
         return try request.content.decode(User.self).flatMap(to: User.PublicUser.self) { user in
+            
+            user.username = user.username.fromBase64()!
+            user.password = user.password.fromBase64()!
+            
             let passwordVerifier = try request.make(BCryptDigest.self)
 
             return User.authenticate(username: user.username, password: user.password, using: passwordVerifier, on: request)
@@ -45,8 +52,8 @@ private extension UserController {
                     let accessToken = try Token.createToken(forUser: user)
 
                     // Eliminar tokens anteriores del usuario
-                    _ = try Token.query(on: request)
-                        .filter(\Token.userId == user.id)
+                    _ = Token.query(on: request)
+                        .filter(\Token.userId == user.id!)
                         .delete()
                     
                     return accessToken.save(on: request).map(to: User.PublicUser.self) { createdToken in
@@ -57,3 +64,16 @@ private extension UserController {
             }
         }
     }
+
+extension String {
+    func fromBase64() -> String? {
+        guard let data = Data(base64Encoded: self) else {
+            return nil
+        }
+        return String(data: data, encoding: .utf8)
+    }
+    
+    func toBase64() -> String {
+        return Data(self.utf8).base64EncodedString()
+    }
+}

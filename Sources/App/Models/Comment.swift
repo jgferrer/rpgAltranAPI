@@ -10,6 +10,7 @@ final class Comment: Codable {
     var comment: String
     var userId: String
     var gnomeId: Int
+    var dateCreated: Date?
 
     /// Creates a new `Comment`.
     init(id: Int? = nil, title: String, comment: String, userId: String, gnomeId: Int) {
@@ -18,6 +19,7 @@ final class Comment: Codable {
         self.comment = comment
         self.userId = userId
         self.gnomeId = gnomeId
+        self.dateCreated = Date()
     }
 }
 

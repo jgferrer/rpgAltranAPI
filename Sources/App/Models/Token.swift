@@ -14,8 +14,11 @@ final class Token: SQLiteModel {
     }
     
     static func createToken(forUser user: User) throws -> Token {
-        let tokenString = Helpers.randomToken(withLength: 30)
-        let newToken = try Token(token: tokenString, userId: user.requireID())
+        // let tokenString = Helpers.randomToken(withLength: 30)
+        let random = try CryptoRandom().generateData(count: 25)
+        
+        let newToken = try Token(token: random.base64EncodedString(),
+                                 userId: user.requireID())
         return newToken
     }
 }
