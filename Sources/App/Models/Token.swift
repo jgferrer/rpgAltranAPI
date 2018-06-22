@@ -1,9 +1,9 @@
 import Foundation
 import Vapor
-import FluentSQLite
+import FluentPostgreSQL
 import Authentication
 
-final class Token: SQLiteModel {
+final class Token: Codable {
     var id: Int?
     var token: String
     var userId: User.ID
@@ -14,14 +14,21 @@ final class Token: SQLiteModel {
     }
     
     static func createToken(forUser user: User) throws -> Token {
-        // let tokenString = Helpers.randomToken(withLength: 30)
-        let random = try CryptoRandom().generateData(count: 25)
-        
-        let newToken = try Token(token: random.base64EncodedString(),
+        /*
+        let random = Helpers.randomToken(withLength: 25)
+        let newToken = try Token(token: random,
                                  userId: user.requireID())
         return newToken
+        */
+        
+        let random = try CryptoRandom().generateData(count: 16)
+        return try Token(token: random.base64EncodedString(),
+                         userId: user.requireID())
     }
 }
+
+extension Token: PostgreSQLModel {}
+
 extension Token: BearerAuthenticatable {
     static var tokenKey: WritableKeyPath<Token, String> { return \Token.token }
 }
@@ -38,5 +45,5 @@ extension Token: Authentication.Token {
     typealias UserIDType = User.ID
 }
 
-extension Token: Content { }
-extension Token: Migration { }
+extension Token: Content {}
+extension Token: Migration {}

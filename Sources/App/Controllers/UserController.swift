@@ -9,10 +9,26 @@ class UserController: RouteCollection {
         let group = router.grouped("api", "users")
         group.post("createUser", use: createUser)
         group.post("loginUser", use: loginUser)
+        
+        let basicAuthMiddleware = User.basicAuthMiddleware(using: BCryptDigest())
+        let basicAuthGroup = group.grouped(basicAuthMiddleware)
+        basicAuthGroup.post("login", use: loginHandler)
     }
 }
 
 private extension UserController {
+
+    func loginHandler(_ req: Request) throws -> Future<Token> {
+        let user = try req.requireAuthenticated(User.self)
+        let token = try Token.createToken(forUser: user)
+
+        // Eliminar tokens anteriores del usuario
+        _ = Token.query(on: req)
+            .filter(\Token.userId == user.id!)
+            .delete()
+
+        return token.save(on: req)
+    }
 
     func createUser(_ request: Request) throws -> Future<User.PublicUser> {
 
@@ -20,7 +36,7 @@ private extension UserController {
 
                 user.username = user.username.fromBase64()!
                 user.password = user.password.fromBase64()!
-                
+
                 return User.query(on: request).filter(\.username == user.username).first().flatMap { existingUser in
                     guard existingUser == nil else {
                         throw Abort(.badRequest, reason: "a user with this username already exists!" , identifier: nil)
@@ -41,10 +57,10 @@ private extension UserController {
 
     func loginUser(_ request: Request) throws -> Future<User.PublicUser> {
         return try request.content.decode(User.self).flatMap(to: User.PublicUser.self) { user in
-            
+
             user.username = user.username.fromBase64()!
             user.password = user.password.fromBase64()!
-            
+
             let passwordVerifier = try request.make(BCryptDigest.self)
 
             return User.authenticate(username: user.username, password: user.password, using: passwordVerifier, on: request)
@@ -55,7 +71,7 @@ private extension UserController {
                     _ = Token.query(on: request)
                         .filter(\Token.userId == user.id!)
                         .delete()
-                    
+
                     return accessToken.save(on: request).map(to: User.PublicUser.self) { createdToken in
                         let publicUser = User.PublicUser(username: user.username, token: createdToken.token)
                         return publicUser
@@ -72,7 +88,7 @@ extension String {
         }
         return String(data: data, encoding: .utf8)
     }
-    
+
     func toBase64() -> String {
         return Data(self.utf8).base64EncodedString()
     }

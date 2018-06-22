@@ -1,4 +1,4 @@
-import FluentSQLite
+import FluentPostgreSQL
 import Vapor
 
 /// A single entry of a Comment.
@@ -23,13 +23,13 @@ final class Comment: Codable {
     }
 }
 
-extension Comment: SQLiteModel { }
+extension Comment: PostgreSQLModel {}
 
 /// Allows `Comment` to be used as a dynamic migration.
-extension Comment: Migration { }
+extension Comment: Migration {}
 
 /// Allows `Comment` to be encoded to and decoded from HTTP messages.
-extension Comment: Content { }
+extension Comment: Content {}
 
 /// Allows `Comment` to be used as a dynamic parameter in route definitions.
-extension Comment: Parameter { }
+extension Comment: Parameter {}
