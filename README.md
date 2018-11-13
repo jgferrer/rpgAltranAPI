@@ -1,6 +1,7 @@
 **/api/json**  
   
 - **GET**  
+  
 	Si llamamos a _/api/json_ devuelve el listado de gnomos  
   
 **/api/users**  
@@ -9,7 +10,7 @@
   
 	-- /createUser {username / password}  
 	-- /login  
-	Para hacer login debemos llamar a api/users/login  
+	Para hacer login debemos llamar a _/api/users/login_ y nos devolverá el token válido  
 	AUTHORIZATION: Basic Username y Password  
   
 **/api/comments**  
