@@ -8,7 +8,12 @@
   
 - **POST**  
   
-	-- /createUser {username / password}  
+	-- ~~/createUser {username / password}~~  
+	-- /create  
+	**BODY (URLEncoded)**:  
+	username: nombre de usuario codificado en base64  
+	password: password de usuario codificado en base64  
+  
 	-- /login  
 	Para hacer login debemos llamar a _/api/users/login_ y nos devolverá el token válido  
 	AUTHORIZATION: Basic Username y Password  
